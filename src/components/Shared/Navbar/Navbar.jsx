@@ -65,6 +65,12 @@ const Navbar = () => {
                     >
                       Home
                     </Link>
+                    <Link
+                      to="/dashboard"
+                      className="block lg:hidden px-4 py-3 hover:bg-neutral-100 transition font-semibold"
+                    >
+                      Dashboard
+                    </Link>
 
                     {user ? (
                       <>
@@ -74,6 +80,12 @@ const Navbar = () => {
                         >
                           Logout
                         </div>
+                        <Link
+                          to="/dashboard"
+                          className="hidden lg:flex  px-4 py-3 hover:bg-neutral-100 transition font-semibold"
+                        >
+                          Dashboard
+                        </Link>
                       </>
                     ) : (
                       <>
@@ -88,6 +100,12 @@ const Navbar = () => {
                           className="px-4 py-3 hover:bg-neutral-100 transition font-semibold"
                         >
                           Sign Up
+                        </Link>
+                        <Link
+                          to="/dashboard"
+                          className="hidden lg:flex  px-4 py-3 hover:bg-neutral-100 transition font-semibold"
+                        >
+                          Dashboard
                         </Link>
                       </>
                     )}

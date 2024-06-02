@@ -1,20 +1,56 @@
 import Container from '../Container'
 import { AiOutlineMenu } from 'react-icons/ai'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import useAuth from '../../../hooks/useAuth'
 import avatarImg from '../../../assets/images/placeholder.jpg'
+import HostRequestModal from '../../Modal/HostRequestModal'
+import useAxiosSecure from '../../../hooks/useAxiosSecure'
+import { toast } from 'react-hot-toast'
 
 const Navbar = () => {
+  const axiosSecure = useAxiosSecure()
   const { user, logOut } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
+  const navigate = useNavigate()
 
+  // for modal in host your home button
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+  }
+
+  const modalHandler = async () => {
+    console.log('I want to host here')
+
+    try {
+      const currentUser = {
+        email: user?.email,
+        role: 'guest',
+        status: 'Requested',
+      }
+      const { data } = await axiosSecure.put(`/user`, currentUser)
+      console.log(data)
+      if (data.modifiedCount > 0) {
+        toast.success('Success! Please wait for admin confirmation.')
+      } else {
+        toast.success('Please!, Wait for admin approval👊')
+      }
+    } catch (err) {
+      console.log(err)
+      toast.error(err.message)
+    } finally {
+      closeModal()
+    }
+  }
   return (
     <div className="fixed w-full bg-white z-10 shadow-sm">
       <div className="py-4 border-b-[1px]">
         <Container>
           <div className="flex flex-row  items-center justify-between gap-3 md:gap-0">
             {/* Logo */}
+
             <Link to="/">
               <img
                 // className='hidden md:block'
@@ -24,35 +60,45 @@ const Navbar = () => {
                 height="100"
               />
             </Link>
+
             {/* Dropdown Menu */}
             <div className="relative">
               <div className="flex flex-row items-center gap-3">
                 {/* Become A Host btn */}
                 <div className="hidden md:block">
-                  {!user && (
+                  {user && (
                     <button
-                      disabled={!user}
+                      // disabled={!user}
+                      onClick={() => setIsModalOpen(true)}
                       className="disabled:cursor-not-allowed cursor-pointer hover:bg-neutral-100 py-3 px-4 text-sm font-semibold rounded-full  transition"
                     >
                       Host your home
                     </button>
                   )}
                 </div>
+                {/* Modal */}
+                <HostRequestModal
+                  closeModal={closeModal}
+                  isOpen={isModalOpen}
+                  modalHandler={modalHandler}
+                />
                 {/* Dropdown btn */}
                 <div
-                  onClick={() => setIsOpen(!isOpen)}
+                  onClick={() => {
+                    setIsOpen(!isOpen)
+                  }}
                   className="p-4 md:py-1 md:px-2 border-[1px] border-neutral-200 flex flex-row items-center gap-3 rounded-full cursor-pointer hover:shadow-md transition"
                 >
                   <AiOutlineMenu />
-                  <div className="hidden md:block">
+                  <div className="relative hidden md:block">
                     {/* Avatar */}
-
                     <img
-                      className="rounded-full object-cover w-7 h-7"
+                      className="rounded-full object-cover w-8 h-8 p-[2px]"
                       referrerPolicy="no-referrer"
                       src={user && user.photoURL ? user.photoURL : avatarImg}
                       alt="profile"
                     />
+                    <div className="hidden md:block border-r border-green-500  rounded-full w-8 h-8 animate-spin absolute top-0 "></div>
                   </div>
                 </div>
               </div>
@@ -61,13 +107,13 @@ const Navbar = () => {
                   <div className="flex flex-col cursor-pointer">
                     <Link
                       to="/"
-                      className="block md:hidden px-4 py-3 hover:bg-neutral-100 transition font-semibold"
+                      className="block  px-4 py-3 hover:bg-neutral-100 transition font-semibold"
                     >
                       Home
                     </Link>
                     <Link
                       to="/dashboard"
-                      className="block lg:hidden px-4 py-3 hover:bg-neutral-100 transition font-semibold"
+                      className="block  px-4 py-3 hover:bg-neutral-100 transition font-semibold"
                     >
                       Dashboard
                     </Link>
@@ -75,17 +121,21 @@ const Navbar = () => {
                     {user ? (
                       <>
                         <div
-                          onClick={() => logOut()}
+                          // disabled={!user}
+                          onClick={() => setIsModalOpen(true)}
+                          className="md:hidden block disabled:cursor-not-allowed cursor-pointer hover:bg-neutral-100 py-3 px-4  font-semibold   transition"
+                        >
+                          Host your home
+                        </div>
+                        <div
+                          onClick={() => {
+                            logOut()
+                            navigate('/')
+                          }}
                           className="px-4 py-3 hover:bg-neutral-100 transition font-semibold cursor-pointer"
                         >
                           Logout
                         </div>
-                        <Link
-                          to="/dashboard"
-                          className="hidden lg:flex  px-4 py-3 hover:bg-neutral-100 transition font-semibold"
-                        >
-                          Dashboard
-                        </Link>
                       </>
                     ) : (
                       <>
@@ -100,12 +150,6 @@ const Navbar = () => {
                           className="px-4 py-3 hover:bg-neutral-100 transition font-semibold"
                         >
                           Sign Up
-                        </Link>
-                        <Link
-                          to="/dashboard"
-                          className="hidden lg:flex  px-4 py-3 hover:bg-neutral-100 transition font-semibold"
-                        >
-                          Dashboard
                         </Link>
                       </>
                     )}

@@ -1,9 +1,11 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from '../components/Dashboard/Sidebar/Sidebar'
+// import CustomBackground from '../components/Shared/CustomBackgrond/CustomBackground'
 
 const DashBoardLayout = () => {
   return (
     <div className="relative min-h-screen md:flex">
+      {/* <CustomBackground></CustomBackground> */}
       {/* Sidebar */}
       <Sidebar />
 

@@ -5,14 +5,23 @@ import useAuth from '../../../hooks/useAuth'
 // import axios from 'axios'
 import profileNotFound from '../../../../public/user-not-found.jpg'
 import { imageUpload } from '../../../api/utils'
+import toast from 'react-hot-toast'
+import { Helmet } from 'react-helmet-async'
+import { useMutation } from '@tanstack/react-query'
+import axios from 'axios'
+import useAxiosSecure from '../../../hooks/useAxiosSecure'
+import { useNavigate } from 'react-router-dom'
 
 const AddRoom = () => {
-  const { user, setLoading, loading } = useAuth()
+  const navigate = useNavigate()
+  const axiosSecure = useAxiosSecure()
+  const { user } = useAuth()
   const [imagePreview, setImagePreview] = useState()
   const [imageText, setImageText] = useState('')
+  const [loading, setLoading] = useState(false)
   const [dates, setDates] = useState({
     startDate: new Date(),
-    endDate: null,
+    endDate: new Date(),
     key: 'selection',
   })
 
@@ -22,8 +31,23 @@ const AddRoom = () => {
     setDates(item.selection)
   }
 
+  // post method using tanstack query
+  const { mutateAsync } = useMutation({
+    mutationFn: async (roomData) => {
+      const { data } = await axiosSecure.post('/room', roomData)
+      return data
+    },
+    onSuccess: () => {
+      setLoading(false)
+      toast.success('Room added successfully')
+      console.log('data saved')
+      navigate('/dashboard/my-listings')
+    },
+  })
+
   // form handler
   const handleSubmit = async (e) => {
+    setLoading(true)
     e.preventDefault()
 
     const form = e.target
@@ -50,10 +74,10 @@ const AddRoom = () => {
     formData.append('image', image)
 
     try {
-      setLoading(true)
+      // setLoading(true)
       image_url = await imageUpload(image)
 
-      const info = {
+      const roomData = {
         location,
         category,
         title,
@@ -68,10 +92,23 @@ const AddRoom = () => {
         host,
       }
 
-      console.table(info)
+      console.table(roomData)
+
+      toast('Successfully added a new room.')
+
+      if (roomData) {
+        form.reset()
+        setLoading(false)
+        setImagePreview('')
+        setImageText('')
+      }
+
+      // post request to server
+      await mutateAsync(roomData)
     } catch (err) {
       console.log(err.message)
       setLoading(false)
+      toast.error(err.message)
     }
   }
 
@@ -92,7 +129,9 @@ const AddRoom = () => {
 
   return (
     <div>
-      <h1>Add room page..</h1>
+      <Helmet>
+        <title>Add Room | Dashboard</title>
+      </Helmet>
 
       {/* Form  */}
       <AddRoomForm

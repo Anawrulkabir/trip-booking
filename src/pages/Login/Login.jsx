@@ -5,6 +5,7 @@ import { AuthContext } from '../../providers/AuthProvider'
 import toast from 'react-hot-toast'
 import useAuth from '../../hooks/useAuth'
 import { TbFidgetSpinner } from 'react-icons/tb'
+import { Helmet } from 'react-helmet-async'
 
 const Login = () => {
   const { signIn, signInWithGoogle, loading, resetPassword, setLoading } =
@@ -59,6 +60,9 @@ const Login = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
+      <Helmet>
+        <title>Login | StayVista</title>
+      </Helmet>
       <div className="flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900">
         <div className="mb-8 text-center">
           <h1 className="my-3 text-4xl font-bold">Log In</h1>

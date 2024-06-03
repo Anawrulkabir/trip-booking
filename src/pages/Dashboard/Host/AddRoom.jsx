@@ -25,7 +25,7 @@ const AddRoom = () => {
     key: 'selection',
   })
 
-  // Date range handlert{
+  // Date range handler
   const handleDates = (item) => {
     console.log(item)
     setDates(item.selection)

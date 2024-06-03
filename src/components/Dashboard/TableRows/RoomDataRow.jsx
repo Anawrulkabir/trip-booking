@@ -3,9 +3,12 @@ import { format } from 'date-fns'
 import { useState, Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import DeleteModal from '../../Modal/DeleteModal'
+import UpdateRoomModal from '../../Modal/UpdateRoomModal'
+import { Link, useParams } from 'react-router-dom'
 
-const RoomDataRow = ({ room, handleDelete }) => {
-  let [isOpen, setIsOpen] = useState(false)
+const RoomDataRow = ({ room, handleDelete, refetch }) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   // For delete modal
   function closeModal() {
@@ -21,20 +24,22 @@ const RoomDataRow = ({ room, handleDelete }) => {
   return (
     <tr>
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <div className="flex items-center">
-          <div className="flex-shrink-0">
-            <div className="block relative">
-              <img
-                alt="profile"
-                src={room?.image}
-                className="mx-auto object-cover rounded h-10 w-15 "
-              />
+        <Link to={`/room/${room._id}`}>
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="block relative">
+                <img
+                  alt="profile"
+                  src={room?.image}
+                  className="mx-auto object-cover rounded h-10 w-10 "
+                />
+              </div>
+            </div>
+            <div className="ml-3">
+              <p className=" whitespace-no-wrap text-blue-900">{room?.title}</p>
             </div>
           </div>
-          <div className="ml-3">
-            <p className="text-gray-900 whitespace-no-wrap">{room?.title}</p>
-          </div>
-        </div>
+        </Link>
       </td>
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
         <p className="text-gray-900 whitespace-no-wrap">{room?.location}</p>
@@ -71,14 +76,23 @@ const RoomDataRow = ({ room, handleDelete }) => {
         />
       </td>
       <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-        <span className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+        <button
+          onClick={() => setIsEditModalOpen(true)}
+          className="relative cursor-pointer inline-block px-3 py-1 font-semibold text-green-900 leading-tight"
+        >
           <span
             aria-hidden="true"
             className="absolute inset-0 bg-green-200 opacity-50 rounded-full"
           ></span>
           <span className="relative">Update</span>
-        </span>
+        </button>
         {/* Update Modal */}
+        <UpdateRoomModal
+          setIsEditModalOpen={setIsEditModalOpen}
+          isOpen={isEditModalOpen}
+          room={room}
+          refetch={refetch}
+        />
       </td>
     </tr>
   )
@@ -87,6 +101,7 @@ const RoomDataRow = ({ room, handleDelete }) => {
 RoomDataRow.propTypes = {
   room: PropTypes.object,
   refetch: PropTypes.func,
+  handleDelete: PropTypes.func,
 }
 
 export default RoomDataRow
